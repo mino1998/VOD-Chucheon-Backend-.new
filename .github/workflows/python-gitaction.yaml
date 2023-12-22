@@ -49,7 +49,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:arn:aws:iam::813621738328:role/hellojinttoRole
-          role-session-name: hellojinttoRoleSessionName
+          role-session-name: hellojinttoRole
           aws-region: ap-northeast-2
 
 
