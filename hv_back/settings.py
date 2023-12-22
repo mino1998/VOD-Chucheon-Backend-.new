@@ -193,8 +193,11 @@ SIMPLE_JWT = {
 MEDIA_ROOT = BASE_DIR/"media"
 MEDIA_URL = "/media/"
 
-AWS_ACCESS_KEY_ID = get_secret("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = get_secret("AWS_SECRET_ACCESS_KEY")
+# AWS_ACCESS_KEY_ID = get_secret("AWS_ACCESS_KEY_ID")
+# AWS_SECRET_ACCESS_KEY = get_secret("AWS_SECRET_ACCESS_KEY")
+
+
+
 AWS_STORAGE_BUCKET_NAME = 'jintto-s3-backend'
 # AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 AWS_S3_REGION = 'ap-northeast-2'

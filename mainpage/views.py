@@ -25,16 +25,26 @@ import boto3
 from io import StringIO
 import pickle
 import ast
+from .models import AWSAuth
+
+aws_auth = AWSAuth.objects.first()
+if aws_auth:
+    AWS_ACCESS_KEY_ID = aws_auth.access_key_id
+    AWS_SECRET_ACCESS_KEY = aws_auth.access_secret_key_id
 # from django.views.decorators.cache import never_cache
 # from corsheaders.decorators import cors_allow_all
 
 # logger = logging.getLogger(__name__)
 
-# AWS 자격 증명 관리를 위한 세팅
-AWS_ACCESS_KEY = settings.AWS_ACCESS_KEY_ID
-AWS_SECRET_KEY = settings.AWS_SECRET_ACCESS_KEY
-AWS_S3_REGION = settings.AWS_S3_REGION
+# # AWS 자격 증명 관리를 위한 세팅
+# AWS_ACCESS_KEY = settings.AWS_ACCESS_KEY_ID
+# AWS_SECRET_KEY = settings.AWS_SECRET_ACCESS_KEY
 
+
+
+
+
+AWS_S3_REGION = settings.AWS_S3_REGION
 # S3 버킷 및 객체 키 설정
 S3_BUCKET_NAME = settings.AWS_STORAGE_BUCKET_NAME
 ASSET_OBJECT_KEY = 'data/asset_df.csv'

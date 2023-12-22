@@ -111,11 +111,14 @@ def read_data_from_local(file_name):
 
 # 로깅 s3 버전으로 
 S3_BUCKET_NAME = settings.AWS_STORAGE_BUCKET_NAME
-AWS_ACCESS_KEY = settings.AWS_ACCESS_KEY_ID
-AWS_SECRET_KEY = settings.AWS_SECRET_ACCESS_KEY
 AWS_S3_REGION = settings.AWS_S3_REGION
 
 def log_user_action(subsr, request, response):
+    from mainpage.models import AWSAuth
+    aws_auth = AWSAuth.objects.first()
+    if aws_auth:
+        AWS_ACCESS_KEY = aws_auth.access_key_id
+        AWS_SECRET_KEY = aws_auth.access_secret_key_id
     s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY, region_name=AWS_S3_REGION)
     log_file_path = 'data/daily_log.csv'
     file_content = ''  # 기본값으로 초기화

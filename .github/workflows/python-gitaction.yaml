@@ -38,9 +38,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
 
-      - name: Decode secrets.json
-        run: |
-          echo "${{ secrets.SECRETS_JSON }}" | base64 --decode > secrets.json
+      # - name: Decode secrets.json
+      #   run: |
+      #     echo "${{ secrets.SECRETS_JSON }}" | base64 --decode > secrets.json
 
       - name: Build Docker Compose
         run: docker-compose
