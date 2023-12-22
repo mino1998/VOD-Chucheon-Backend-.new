@@ -1,9 +1,9 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:813621738328:task-definition/hellojinttoTask:6",
+    "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:813621738328:task-definition/hellojinttoTask:7",
     "containerDefinitions": [
         {
             "name": "hellojinttodjango",
-            "image": "sumin57/jinttoback:latest",
+            "image": "813621738328.dkr.ecr.ap-northeast-2.amazonaws.com/hellojintto:ff0e06b25ac686bec1637f6fdcc163227fc63eaf",
             "cpu": 0,
             "portMappings": [
                 {
@@ -35,7 +35,7 @@
     "family": "hellojinttoTask",
     "executionRoleArn": "arn:aws:iam::813621738328:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "revision": 6,
+    "revision": 7,
     "volumes": [],
     "status": "ACTIVE",
     "requiresAttributes": [
@@ -46,7 +46,13 @@
             "name": "ecs.capability.execution-role-awslogs"
         },
         {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
             "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
         },
         {
             "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
@@ -72,7 +78,7 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
-    "registeredAt": "2023-12-22T06:49:13.039Z",
+    "registeredAt": "2023-12-22T07:06:27.133Z",
     "registeredBy": "arn:aws:iam::813621738328:root",
     "tags": []
 }
