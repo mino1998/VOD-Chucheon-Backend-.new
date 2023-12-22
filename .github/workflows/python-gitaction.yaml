@@ -45,12 +45,12 @@ jobs:
       - name: Build Docker Compose
         run: docker-compose
 
-      # - name: Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     role-to-assume: arn:aws:iam::813621738328:role/jinttoRole
-      #     role-session-name: jinttoRoleSessionName
-      #     aws-region: ap-northeast-2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:arn:aws:iam::813621738328:role/hellojinttoRole
+          role-session-name: hellojinttoRoleSessionName
+          aws-region: ap-northeast-2
 
 
       # - name: Login to Amazon ECR
