@@ -2,18 +2,12 @@ import boto3
 from datetime import datetime
 from hv_back import settings
 
-
-
-
 S3_BUCKET_NAME = settings.AWS_STORAGE_BUCKET_NAME
+AWS_ACCESS_KEY = settings.AWS_ACCESS_KEY_ID
+AWS_SECRET_KEY = settings.AWS_SECRET_ACCESS_KEY
 AWS_S3_REGION = settings.AWS_S3_REGION
 
 def move_log_to_archive():
-    from mainpage.models import AWSAuth
-    aws_auth = AWSAuth.objects.first()
-    if aws_auth:
-        AWS_ACCESS_KEY = aws_auth.access_key_id
-        AWS_SECRET_KEY = aws_auth.access_secret_key_id
     s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY, region_name=AWS_S3_REGION)
     source_key = 'data/daily_log.csv'
     destination_key = f'data/log_{datetime.now().strftime("%y%m%d")}.csv'

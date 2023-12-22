@@ -1,59 +1,43 @@
+import logging
+import json
+import ast
 import os
+import boto3
 import random
+import pickle
+from io import StringIO
 import pandas as pd
 from django.http import JsonResponse
+from hv_back import settings
 from rest_framework.response import Response
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-import logging
-import json
 from hv_back.utils import get_server_time
 from hv_back.utils import load_recommendation_model
 from hv_back.utils import convert_none_to_null_1
 from hv_back.utils import convert_none_to_null
 from hv_back.utils import read_data_from_local
-from hv_back.utils import log_user_action
 from django.utils import timezone
+from hv_back.utils import log_user_action
 from surprise import Dataset, Reader
 from surprise.model_selection import train_test_split
 from surprise import BaselineOnly
 from surprise import accuracy
-from hv_back import settings
-from django.conf import settings
-import boto3
-from io import StringIO
-import pickle
-import ast
-from .models import AWSAuth
 
-aws_auth = AWSAuth.objects.first()
-if aws_auth:
-    AWS_ACCESS_KEY_ID = aws_auth.access_key_id
-    AWS_SECRET_ACCESS_KEY = aws_auth.access_secret_key_id
-# from django.views.decorators.cache import never_cache
-# from corsheaders.decorators import cors_allow_all
-
-# logger = logging.getLogger(__name__)
-
-# # AWS 자격 증명 관리를 위한 세팅
-# AWS_ACCESS_KEY = settings.AWS_ACCESS_KEY_ID
-# AWS_SECRET_KEY = settings.AWS_SECRET_ACCESS_KEY
-
-
-
-
-
+# AWS 자격 증명 관리를 위한 세팅
+AWS_ACCESS_KEY = settings.AWS_ACCESS_KEY_ID
+AWS_SECRET_KEY = settings.AWS_SECRET_ACCESS_KEY
 AWS_S3_REGION = settings.AWS_S3_REGION
+
 # S3 버킷 및 객체 키 설정
 S3_BUCKET_NAME = settings.AWS_STORAGE_BUCKET_NAME
-ASSET_OBJECT_KEY = 'data/asset_df.csv'
+ASSET_OBJECT_KEY = 'data/asset_df_final.csv'
 TIME_VIEW_OBJECT_KEY = 'data/time_view_df.csv'
 SUBSR_MAX_OBJECT_KEY = 'data/subsr_max_genre.csv'
 VOD_OBJECT_KEY = "data/vod_df.csv"
 CONTENT_SIM_OJECT_KEY = "data/contents_sim.csv"
 MODEL_KEY = "model"
-
 
 def read_data_from_s3(bucket_name, object_key):
     try:
@@ -61,7 +45,6 @@ def read_data_from_s3(bucket_name, object_key):
         obj = s3.get_object(Bucket=bucket_name, Key=object_key)
         data = obj['Body'].read().decode('euc-kr')
         df = pd.read_csv(StringIO(data))
-
     except NoCredentialsError as e:
         print('AWS credentials not available')
         raise e
@@ -76,24 +59,31 @@ def load_recommendation_model_from_s3(bucket_name, model_key):
     response = s3.get_object(Bucket=bucket_name, Key=model_key)
     model_str = response['Body'].read()
     model = pickle.loads(model_str)
+
     return model
 
+# 로컬로 데이터 읽는 코드
+# def read_data_from_local(file_name):
+#     try:
+#         file_path = os.path.join('static', file_name)
+#         data = pd.read_csv(file_path, encoding='euc-kr')
+        
+#         # NaN 값을 적절한 값으로 대체
+#         data = data.fillna(value={'disp_rtm': "null", "series_nm":"null"})  # your_column_name과 your_default_value를 적절히 수정'''
+        
+#         print(f'Successfully read data from: {file_path}')
+#         sample_data = data.head(1)
+#         print(f"Sample data: {sample_data}")  # 변경된 부분
+#         return data
+#     except Exception as e:
+#         print(f'Error reading data from local file: {e}')
+#         raise e  
 
 
-# # recommendation_1 : 시간대 인기차트 프로그램명이 저장된 데이터를 부르는 함수    
-# def get_assets_by_time(server_time):
-#     time_view_df = read_data_from_s3(S3_BUCKET_NAME,TIME_VIEW_OBJECT_KEY)
-#     server_hour = server_time.hour
-#     selected_data = time_view_df[time_view_df['time_range'] == server_hour]['top_asset']
-#     top_assets_list = selected_data.iloc[0].split(', ')
-#     return top_assets_list
-
-def get_assets_by_time(server_time, hashtag):
-    if hashtag is None:
-        raise ValueError("hashtag is None")
+# recommendation_1 : 시간대 인기차트 프로그램명이 저장된 데이터를 부르는 함수    
+def get_assets_by_time(server_time, hashtag=None):
     time_view_df = read_data_from_s3(S3_BUCKET_NAME, TIME_VIEW_OBJECT_KEY)
-    print(f"Received hashtag: {hashtag}, type: {type(hashtag)}")  # hashtag 값과 타입 출력
-    if hashtag == 1:
+    if hashtag is None or hashtag == 1:
         server_hour = server_time.hour
         selected_data = time_view_df[time_view_df['time_range'] == server_hour]['top_asset']
     elif hashtag == 2:
@@ -110,7 +100,6 @@ def get_assets_by_time(server_time, hashtag):
     
     top_assets_list = selected_data.iloc[0].split(', ')
     return top_assets_list
-
 
 
 # recommendation_1 : 실시간 인기 프로그램의 프로그램 정보만을 모아서 return하는 함수
@@ -150,6 +139,7 @@ def get_most_watched_genre(subsr):
 # recommendation_2 : 예외처리를 위한 랜덤 뽑아주기
 def get_random_programs(num_programs):
     program_data =  read_data_from_s3(S3_BUCKET_NAME, ASSET_OBJECT_KEY)
+    # program_data = read_data_from_local('asset_df_total.csv')
     try:
         if not program_data.empty:
             selected_programs = program_data.sample(min(num_programs, len(program_data)))
@@ -176,47 +166,21 @@ def get_user_recommendations(subsr, vod_df, asset_df, model, top_n=20):
     return subsr_recommendations
 
 
-# @method_decorator(csrf_exempt, name='dispatch')
-# class RecommendationView_1(View):
-#     def post(self, request):
-#         try:
-#             server_time = get_server_time()
-#             print(f'server_time, {server_time}')
-#             top_assets = get_assets_by_time(server_time)
-#             print(f'top_assets, {top_assets}')
-#             selected_programs = get_programs_by_assets(top_assets)
-#             result_data = selected_programs.apply(lambda x: x.map(convert_none_to_null_1)).to_dict('records')
-#             print(f'result_data, {result_data}')
-#             return JsonResponse({'data': result_data}, content_type='application/json')
-
-#         except Exception as e:
-#             logging.exception(f"Error in RecommendationView: {e}")
-#             return JsonResponse({'error': 'Internal Server Error'}, status=500)
-
-
 @method_decorator(csrf_exempt, name='dispatch')
-# @never_cache
-# @cors_allow_all
 class RecommendationView_1(View):
     def post(self, request):
-        # logger.debug(f"Request body: {request.body}")
-        print("Request received_reco1_success?")
         try:
-            print(f"Reco1 : Request body: {request.body}")
             data = json.loads(request.body)
-            print(f"Reco1 : Parsed data: {data}")
             hashtag = data.get('hashtag', None)  # 'hashtag' 키가 없으면 None을 반환합니다.
-            print(f"Received hashtag: {hashtag}, type: {type(hashtag)}")  # hashtag 값과 타입 출력
             server_time = get_server_time()
-            # print(f'server_time, {server_time}')
+            print(f'server_time, {server_time}')
             top_assets = get_assets_by_time(server_time, hashtag)
             print(f'top_assets, {top_assets}')
             selected_programs = get_programs_by_assets(top_assets)
             result_data = selected_programs.apply(lambda x: x.map(convert_none_to_null_1)).to_dict('records')
-            # print(f'result_data, {result_data}')
+            print(f'result_data, {result_data}')
             return JsonResponse({'data': result_data}, content_type='application/json')
-        except ValueError as ve:
-            return JsonResponse({'error': str(ve)}, status=400)
+
         except Exception as e:
             logging.exception(f"Error in RecommendationView: {e}")
             return JsonResponse({'error': 'Internal Server Error'}, status=500)
@@ -243,6 +207,7 @@ class RecommendationView_2(View):
             num_programs_to_select = min(20, len(programs))
             selected_programs = programs if num_programs_to_select >= len(programs) else random.sample(programs, num_programs_to_select)
             result_data = [convert_none_to_null(program) for program in selected_programs]
+            print('추천2 실행 완료')
             return JsonResponse({'data': result_data}, content_type='application/json')
 
         except Exception as e:
@@ -268,13 +233,13 @@ class RecommendationView_3(View):
         
             model_filename = f'baseline_model_{four_months_ago_month}{three_months_ago_month}'
             MODEL_FINAL_KEY = f'{MODEL_KEY}/{model_filename}.pkl'
-            print('---------------------------------------------')
-            print(MODEL_FINAL_KEY)
             recommendation_model = load_recommendation_model_from_s3(S3_BUCKET_NAME, MODEL_FINAL_KEY)
             if recommendation_model is None:
                 return JsonResponse({'error': 'Failed to load the recommendation model'}, status=500)
             vod_df=read_data_from_s3(S3_BUCKET_NAME, VOD_OBJECT_KEY)
             asset_df=read_data_from_s3(S3_BUCKET_NAME, ASSET_OBJECT_KEY)
+            # vod_df = read_data_from_local('vod_df.csv')
+            # asset_df = read_data_from_local('asset_df_total.csv')
             programs = get_user_recommendations(subsr=subsr, vod_df=vod_df, asset_df=asset_df, model=recommendation_model)
             if programs.empty:
                 return JsonResponse({'error': 'No programs available'}, status=404)
@@ -282,6 +247,7 @@ class RecommendationView_3(View):
             recommended_programs_df = asset_df.loc[asset_df['asset_nm'].isin(programs['asset_nm'])]
             result_data = recommended_programs_df.to_dict(orient='records')
             result_data = [convert_none_to_null(program) for program in result_data]
+            print('추천3 실행 완료')
             return JsonResponse({'data': result_data}, content_type='application/json')
 
         except Exception as e:
@@ -309,6 +275,7 @@ class RecommendationView_4(View):
             asset_nm = vod_log.loc[vod_log['datetime'].idxmax(), 'asset_nm']
             
             cos_sim = read_data_from_s3(S3_BUCKET_NAME, CONTENT_SIM_OJECT_KEY)
+            # cos_sim = read_data_from_local('contents_sim.csv')
             if cos_sim is not None:
                 print(f"cos_sim not none!")
                 programs_str = cos_sim[cos_sim['asset_nm'] == asset_nm]['similar_assets'].iloc[0]
@@ -323,18 +290,18 @@ class RecommendationView_4(View):
                 return JsonResponse({'error': 'No programs available'}, status=404)
             num_programs_to_select = min(10, len(selected_programs))
             result_data = [convert_none_to_null(program) for program in selected_programs[:num_programs_to_select]]
+            print('추천4 실행 완료')
             return JsonResponse({'data': result_data}, content_type='application/json')
         except Exception as e:
             logging.exception(f"Error in RecommendationView_2: {e}")
             return JsonResponse({'error': 'Internal Server Error'}, status=500)
-
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SearchVeiw(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
+            print("데이터는 불러왔어요!!!!!!!")
             subsr = data.get('subsr', None)
             program_to_search = data.get('programName', None) 
             print(f"program_to_search:", {program_to_search})
@@ -342,11 +309,13 @@ class SearchVeiw(View):
                 return JsonResponse({'error': 'program_to_search is missing'}, status=400)
             try:
                 asset_df = read_data_from_s3(S3_BUCKET_NAME, ASSET_OBJECT_KEY)
+                print("S3에서 데이터 잘 가져왔어요!!!!!!!!!!!!!!!!!!")
             except Exception as e:
                 logging.exception(f"Error reading data from local file: {e}")
                 return JsonResponse({'error': 'Failed to read data file'}, status=500)
             try:
                 selected_data = asset_df[asset_df['asset_nm'].str.contains(program_to_search)]
+                print("입력값이 포함된 데이터를 찾았어요!!!!!!!!!!!")
             except KeyError:
                 return JsonResponse({'error': 'Invalid filtering condition'}, status=400)
             result_data = selected_data.where(pd.notna(selected_data), None).applymap(convert_none_to_null_1).to_dict('records')
@@ -377,6 +346,7 @@ class ProcessButtonClickView(View):
                 return JsonResponse({'error': 'Failed to read data file'}, status=500)
             try:
                 selected_data = asset_df[asset_df['category_h2'] == button_text]
+                print(selected_data)
                 result_data = selected_data.where(pd.notna(selected_data), None).applymap(convert_none_to_null_1).to_dict('records')
                 print("결과 데이터 개수", len(result_data))
                 print("결과 데이터 타입", type(result_data))
@@ -394,3 +364,5 @@ class ProcessButtonClickView(View):
         finally:
             if JsonResponse:
                 log_user_action(subsr, request, JsonResponse)  # 여기에 사용자 아이디를 전달합니다.
+        
+

@@ -12,22 +12,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-import os
-# from django.core.exceptions import ImproperlyConfigured
-
-# BASE_DIR = Path(__file__).resolve().parent.parent
-
-# secret_file = os.path.join(BASE_DIR, 'secrets.json') # secrets.json 파일 위치
-
-# with open(secret_file) as f:
-#     secrets = json.loads(f.read())
-
-# def get_secret(setting, secrets=secrets):
-#     try:
-#         return secrets[setting]
-#     except KeyError:
-#         error_msg = "Set the {} environment variable".format(setting)
-#         raise ImproperlyConfigured(error_msg)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-)6cv^nunnw2f864i*#i7g1la@%vshwx8k4z9^dt(fsy+_)e-b!"
+SECRET_KEY = 'django-insecure-)6cv^nunnw2f864i*#i7g1la@%vshwx8k4z9^dt(fsy+_)e-b!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -62,8 +46,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
-    'core',
-    'storages'
 ]
 
 MIDDLEWARE = [
@@ -147,11 +129,19 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-
+# 정적 파일을 서빙할 URL(prefix) 설정
+STATIC_URL = '/static/'
+import os
+# 정적 파일이 위치한 디렉토리 설정
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000", 
     "https://front.jinttoteam.com"  # React 앱이 실행되는 주소
+
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -164,53 +154,33 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'JWT_SECRET_KEY': "Lw5Syaog9lZb32MpP4G117_e1AXKCOZyrr9MtHj40Cs",  # 생성된 비밀 키로 교체
+    'JWT_SECRET_KEY': 'Lw5Syaog9lZb32MpP4G117_e1AXKCOZyrr9MtHj40Cs',  # 생성된 비밀 키로 교체
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-#     'root': {
-#         'handlers': ['console'],
-#         'level': 'DEBUG',  # 필요에 따라 변경 가능
-#     },
-# }
+# AWS S3 설정
+# git action 시크릿으로 넣어야될 것
+AWS_ACCESS_KEY_ID = 'AKIA3235CPNMMR3SRYGW'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'jintto-s3-backend'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+AWS_S3_REGION = 'ap-northeast-2'
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',  # 필요에 따라 변경 가능
+    },
+}
 
 MEDIA_ROOT = BASE_DIR/"media"
 MEDIA_URL = "/media/"
-
-# AWS_ACCESS_KEY_ID = get_secret("AWS_ACCESS_KEY_ID")
-# AWS_SECRET_ACCESS_KEY = get_secret("AWS_SECRET_ACCESS_KEY")
-
-
-
-AWS_STORAGE_BUCKET_NAME = 'jintto-s3-backend'
-# AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-AWS_S3_REGION = 'ap-northeast-2'
-# PROGRAM_OBJECT_KEY = 'data/asset_df.csv'
-
-# # 정적 파일을 서빙할 URL(prefix) 설정
-STATIC_URL = '/static/'
-import os
-# 정적 파일이 위치한 디렉토리 설정
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
-# 정적 파일 설정
-# STATIC_LOCATION = 'jintto-s3-backend'
-# STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
-# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
