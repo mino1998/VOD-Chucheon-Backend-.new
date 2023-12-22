@@ -30,7 +30,7 @@ import os
 #         raise ImproperlyConfigured(error_msg)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-# BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -38,7 +38,7 @@ import os
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_secret("SECRET_KEY")
+SECRET_KEY = "django-insecure-)6cv^nunnw2f864i*#i7g1la@%vshwx8k4z9^dt(fsy+_)e-b!"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -164,7 +164,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'JWT_SECRET_KEY': get_secret("JWT_SECRET_KEY"),  # 생성된 비밀 키로 교체
+    'JWT_SECRET_KEY': "Lw5Syaog9lZb32MpP4G117_e1AXKCOZyrr9MtHj40Cs",  # 생성된 비밀 키로 교체
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
