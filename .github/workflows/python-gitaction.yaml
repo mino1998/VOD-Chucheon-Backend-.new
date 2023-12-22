@@ -51,6 +51,8 @@ jobs:
           role-to-assume: arn:arn:aws:iam::813621738328:role/hellojinttorole
           role-session-name: hellojinttoRoleSessionName
           aws-region: ap-northeast-2
+        env:
+          ACTIONS_STEP_DEBUG: true
 
 
       # - name: Login to Amazon ECR
