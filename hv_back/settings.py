@@ -15,6 +15,8 @@ from datetime import timedelta
 import os, json
 from django.core.exceptions import ImproperlyConfigured
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 secret_file = os.path.join(BASE_DIR, 'secrets.json') # secrets.json 파일 위치
 
 with open(secret_file) as f:
@@ -28,7 +30,7 @@ def get_secret(setting, secrets=secrets):
         raise ImproperlyConfigured(error_msg)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -42,7 +44,7 @@ SECRET_KEY = get_secret("SECRET_KEY")
 DEBUG = True
 
 #배포 변경 추후 우리 도메인만 
-ALLOWED_HOSTS = ['https://main.jinttoteam.com']
+ALLOWED_HOSTS = ['https://main.jinttoteam.com','localhost', '127.0.0.1', '[::1]']
 
 
 # Application definition
@@ -102,10 +104,10 @@ WSGI_APPLICATION = 'hv_back.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': "jintto",
+        'NAME': "realjinttodb",
         "USER":"jintto",
-        "PASSWORD":"jintto1130",
-        "HOST":"database-new-backenddb.ctcha5snygzq.us-east-1.rds.amazonaws.com",
+        "PASSWORD":"jintto3*",
+        "HOST":"realjinttodb.ckpieg7srtvm.ap-northeast-2.rds.amazonaws.com",
         "PORT":"3306"
     }
 }
@@ -167,26 +169,26 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG',  # 필요에 따라 변경 가능
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+#     'root': {
+#         'handlers': ['console'],
+#         'level': 'DEBUG',  # 필요에 따라 변경 가능
+#     },
+# }
 
 MEDIA_ROOT = BASE_DIR/"media"
 MEDIA_URL = "/media/"

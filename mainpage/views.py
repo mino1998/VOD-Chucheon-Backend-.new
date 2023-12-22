@@ -25,10 +25,10 @@ import boto3
 from io import StringIO
 import pickle
 import ast
-from django.views.decorators.cache import never_cache
-from corsheaders.decorators import cors_allow_all
+# from django.views.decorators.cache import never_cache
+# from corsheaders.decorators import cors_allow_all
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 # AWS 자격 증명 관리를 위한 세팅
 AWS_ACCESS_KEY = settings.AWS_ACCESS_KEY_ID
@@ -185,11 +185,11 @@ def get_user_recommendations(subsr, vod_df, asset_df, model, top_n=20):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-@never_cache
-@cors_allow_all
+# @never_cache
+# @cors_allow_all
 class RecommendationView_1(View):
     def post(self, request):
-        logger.debug(f"Request body: {request.body}")
+        # logger.debug(f"Request body: {request.body}")
         print("Request received_reco1_success?")
         try:
             print(f"Reco1 : Request body: {request.body}")
