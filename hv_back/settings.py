@@ -12,12 +12,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-import os, json
-from django.core.exceptions import ImproperlyConfigured
+import os
+# from django.core.exceptions import ImproperlyConfigured
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
 
-secret_file = os.path.join(BASE_DIR, 'secrets.json') # secrets.json 파일 위치
+# secret_file = os.path.join(BASE_DIR, 'secrets.json') # secrets.json 파일 위치
 
 # with open(secret_file) as f:
 #     secrets = json.loads(f.read())
