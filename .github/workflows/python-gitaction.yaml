@@ -17,7 +17,7 @@ env:
   ECS_SERVICE: jinttoservice                
   ECS_CLUSTER: jinttobackCluster                 
   ECS_TASK_DEFINITION: ./task-definition.json             
-  CONTAINER_NAME: jinttodjango          
+  CONTAINER_NAME: hellojinttodjango          
                                                
 
 

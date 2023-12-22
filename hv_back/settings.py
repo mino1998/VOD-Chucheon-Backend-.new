@@ -44,7 +44,7 @@ SECRET_KEY = get_secret("SECRET_KEY")
 DEBUG = True
 
 #배포 변경 추후 우리 도메인만 
-ALLOWED_HOSTS = ['https://main.jinttoteam.com','localhost', '127.0.0.1', '[::1]']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
